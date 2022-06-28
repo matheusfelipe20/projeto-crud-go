@@ -14,7 +14,7 @@ import (
 func main() {
 	personService, err := person.NewService("person.json")
 	if err != nil {
-		fmt.Println("Error trying to create person service")
+		fmt.Println("Error ao tentar criar o cadastro da pessoa")
 		return
 	}
 
@@ -24,20 +24,20 @@ func main() {
 			var person domain.Person
 			err := json.NewDecoder(r.Body).Decode(&person)
 			if err != nil {
-				fmt.Printf("Error trying to decode body. Body should be a json. Error: %s", err.Error())
-				http.Error(w, "Error trying to create person", http.StatusBadRequest)
+				fmt.Printf("Erro ao tentar decodificar o corpo. O corpo deve ser um json. Error: %s", err.Error())
+				http.Error(w, "Error ao tentar criar cadastro", http.StatusBadRequest)
 				return
 			}
 			if person.ID <= 0 {
-				http.Error(w, "Error trying to create person. ID should be a positive integer", http.StatusBadRequest)
+				http.Error(w, "Erro ao tentar criar o cadastro pessoa. O ID deve ser um número inteiro positivo", http.StatusBadRequest)
 				return
 			}
 
 			//Criar pessoa
 			err = personService.Create(person)
 			if err != nil {
-				fmt.Printf("Error trying to create person: %s", err.Error())
-				http.Error(w, "Error trying to create person", http.StatusInternalServerError)
+				fmt.Printf("Erro ao tentar criar cadastro pessoa: %s", err.Error())
+				http.Error(w, "Erro ao tentar criar cadastro pessoa", http.StatusInternalServerError)
 				return
 			}
 
@@ -55,14 +55,14 @@ func main() {
 				people := personService.List()
 				err := json.NewEncoder(w).Encode(people)
 				if err != nil {
-					http.Error(w, "Error trying to list people", http.StatusInternalServerError)
+					http.Error(w, "Erro ao tentar listar pessoas", http.StatusInternalServerError)
 					return
 				}
 			} else {
 				//Listar pessoa com id
 				personID, err := strconv.Atoi(path)
 				if err != nil {
-					http.Error(w, "Invalid id given. Person ID must be an integer", http.StatusBadRequest)
+					http.Error(w, "ID inválido fornecido. O ID da pessoa deve ser um número inteiro", http.StatusBadRequest)
 					return
 				}
 				person, err := personService.GetByID(personID)
@@ -74,7 +74,7 @@ func main() {
 				w.Header().Set("Content-type", "application/json")
 				err = json.NewEncoder(w).Encode(person)
 				if err != nil {
-					http.Error(w, "Error trying to encode person as json", http.StatusInternalServerError)
+					http.Error(w, "Erro ao tentar codificar pessoa como json", http.StatusInternalServerError)
 					return
 				}
 			}
@@ -84,20 +84,20 @@ func main() {
 			var person domain.Person
 			err := json.NewDecoder(r.Body).Decode(&person)
 			if err != nil {
-				fmt.Printf("Error trying to decode body. Body should be a json. Error: %s", err.Error())
-				http.Error(w, "Error trying to create person", http.StatusBadRequest)
+				fmt.Printf("Erro ao tentar decodificar o corpo. O corpo deve ser um json. Error: %s", err.Error())
+				http.Error(w, "Erro ao tentar criar cadastro de pessoa", http.StatusBadRequest)
 				return
 			}
 			if person.ID <= 0 {
-				http.Error(w, "Error trying to create person. ID should be a positive integer", http.StatusBadRequest)
+				http.Error(w, "Erro ao tentar criar cadastro de pessoa. O ID deve ser um número inteiro positivo", http.StatusBadRequest)
 				return
 			}
 
 			//Editar Pessoa
 			err = personService.Edit(person)
 			if err != nil {
-				fmt.Printf("Error trying to edit person: %s", err.Error())
-				http.Error(w, "Error trying to create person", http.StatusInternalServerError)
+				fmt.Printf("Erro ao tentar editar a pessoa: %s", err.Error())
+				http.Error(w, "Erro ao tentar criar cadastro pessoa", http.StatusInternalServerError)
 				return
 			}
 
@@ -109,18 +109,18 @@ func main() {
 			path := strings.TrimPrefix(r.URL.Path, "/person/")
 
 			if path == "" {
-				http.Error(w, "ID must be provided in the url", http.StatusBadRequest)
+				http.Error(w, "O ID deve ser fornecido na URL", http.StatusBadRequest)
 				return
 			} else {
 				personID, err := strconv.Atoi(path)
 				if err != nil {
-					http.Error(w, "Invalid id given. Person ID must be an integer", http.StatusBadRequest)
+					http.Error(w, "ID inválido fornecido. O ID da pessoa deve ser um número inteiro", http.StatusBadRequest)
 					return
 				}
 				err = personService.DeleteByID(personID)
 				if err != nil {
-					fmt.Printf("Error trying to delete person: %s", err.Error())
-					http.Error(w, "Error trying to delete person", http.StatusInternalServerError)
+					fmt.Printf("Erro ao tentar excluir cadastro de pessoa: %s", err.Error())
+					http.Error(w, "Erro ao tentar excluir cadastro de pessoa", http.StatusInternalServerError)
 					return
 				}
 				w.WriteHeader(http.StatusOK)
