@@ -119,7 +119,7 @@ func (s Service) checkQuantity(person domain.Person) bool {
 
 //Função para tornar os campos obrigatorios
 func (s Service) obrigatory(person domain.Person) bool {
-	if person.FullName == "" || person.Cpf == 0 || person.Address == "" {
+	if person.FullName == "" || person.Cpf == 0 || person.Address == "" || person.DateBirth == "" {
 		return true
 	}
 	return false
