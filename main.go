@@ -102,6 +102,7 @@ func main() {
 			}
 
 			w.WriteHeader(http.StatusOK)
+			fmt.Println("Pessoa editada com sucesso")
 
 		}
 
@@ -123,6 +124,7 @@ func main() {
 					http.Error(w, "Erro ao tentar excluir cadastro de pessoa", http.StatusInternalServerError)
 					return
 				}
+				fmt.Println("Pessoa deletada com sucesso")
 				w.WriteHeader(http.StatusOK)
 			}
 
