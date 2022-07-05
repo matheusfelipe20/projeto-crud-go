@@ -35,6 +35,21 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+//CPF nulo
+func TestCreateErrorCpfNulo(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id":,"full_name":"Felipe","cpf":0,"phone":83978955578,"address":"Guarabira","date_birth":"19/April/1999"}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+}
+
+//Listar pessoas cadastradas
 func TestGetUsers(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/person")
 	if err != nil {
@@ -55,6 +70,7 @@ func TestGetUsers(t *testing.T) {
 	}
 }
 
+//Listar pessoa cadastraada com ID
 func TestGetUsersByID(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/person/1")
 	if err != nil {
@@ -76,15 +92,18 @@ func TestGetUsersByID(t *testing.T) {
 
 }
 
+//Editar pessoa cadastrada
 func TestEditUser(t *testing.T) {
+
 	req, err := http.NewRequest(
 		"PUT",
-		"http://localhost:8080/person/1",
-		bytes.NewReader([]byte(`{"full_name":"Matheus", "cpf":12345678978, "phone":83955447788, 
-		"address": "Rua tal tal, joao pessoa", "date_birth": "20/March/2005"}`)))
+		"http://localhost:8080/person/",
+		bytes.NewBuffer([]byte(`{"id":1,"full_name":"Matheus","cpf":78978978555,"phone":83978955578,"address":"Guarabira","date_birth":"20/March/2002"}`)))
+
 	if err != nil {
 		t.Error(err)
 	}
+
 	defer req.Body.Close()
 
 	resp, err := http.DefaultClient.Do(req)
@@ -93,14 +112,18 @@ func TestEditUser(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
+	if err != nil {
+		t.Error(err)
+	}
+
 	if resp.StatusCode != 200 {
 		fmt.Printf("Sem sucesso pessoa não cadastrada: %d", resp.StatusCode)
 	}
-
 }
 
+//Deletar pessoa cadastrada pelo ID (2)
 func TestDeleteUser(t *testing.T) {
-	req, err := http.NewRequest("DELETE", "http://localhost:8080/person/1", nil)
+	req, err := http.NewRequest("DELETE", "http://localhost:8080/person/2", nil)
 	if err != nil {
 		t.Error("*********************************************")
 		t.Error(err)
