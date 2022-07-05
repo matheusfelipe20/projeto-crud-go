@@ -37,21 +37,6 @@ func TestCreate(t *testing.T) {
 
 }
 
-//Teste de Erro de CPF nulo
-func TestCreateErrorCpfNulo(t *testing.T) {
-	resp, err := http.Post("http://localhost:8080/person/", "application/json",
-		bytes.NewBuffer([]byte(`{"id": 2,"full_name":"Bandeira","cpf":0,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
-
-	if err != nil {
-		t.Errorf("Erro ao fazer requisição: %v", err)
-	}
-	defer resp.Body.Close()
-	if err != nil {
-		t.Errorf("Erro no preenchimento dos campos: %v", err)
-	}
-
-}
-
 //Teste listar pessoas cadastradas
 func TestGetUsers(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/person")
@@ -150,6 +135,21 @@ func TestDeleteUser(t *testing.T) {
 	if resp.StatusCode != 200 {
 		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
 	}
+}
+
+//Teste de Erro de CPF nulo
+func TestErroCreateCpfNulo(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id": 2,"full_name":"Bandeira","cpf":0,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+
 }
 
 //Teste para dar Erro de deletar cadastro, ID não existente
