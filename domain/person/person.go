@@ -36,12 +36,12 @@ func NewService(dbFilePath string) (Service, error) {
 	//Caso já exista leia e atualize a variavel people com as pessoas do arquivo
 	jsonFile, err := os.Open(dbFilePath)
 	if err != nil {
-		return Service{}, fmt.Errorf("Erro ao tentar abrir arquivo que contém todas as pessoas: %s", err.Error())
+		return Service{}, fmt.Errorf("falha ao tentar abrir arquivo que contém todas as pessoas: %s", err.Error())
 	}
 
 	jsonFileContenByte, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
-		return Service{}, fmt.Errorf("Erro ao tentar ler o arquivo: %s", err.Error())
+		return Service{}, fmt.Errorf("falha ao tentar ler o arquivo: %s", err.Error())
 	}
 
 	var allPeople domain.People
@@ -61,12 +61,12 @@ func createEmptyFile(dbFilePath string) error {
 	}
 	peopleJSON, err := json.Marshal(people)
 	if err != nil {
-		return fmt.Errorf("Erro ao tentar codificar pessoas como JSON?: %s", err.Error())
+		return fmt.Errorf("falha ao tentar codificar pessoas como JSON?: %s", err.Error())
 	}
 
 	err = ioutil.WriteFile(dbFilePath, peopleJSON, 0755)
 	if err != nil {
-		return fmt.Errorf("Erro ao tentar gravar no arquivo. Error: %s", err.Error())
+		return fmt.Errorf("falha ao tentar gravar no arquivo. Error: %s", err.Error())
 	}
 
 	return nil
@@ -75,17 +75,17 @@ func createEmptyFile(dbFilePath string) error {
 func (s *Service) Create(person domain.Person) error {
 	//Verificar se a pessoa já existe
 	if s.exists(person) {
-		return fmt.Errorf("Erro ao tentar criar pessoa. Existe uma pessoa com este ID ou CPF já cadastrado")
+		return fmt.Errorf("falha ao tentar criar pessoa. Existe uma pessoa com este ID ou CPF já cadastrado")
 	}
 
 	//Verificar quantidade de digitos
 	if s.checkQuantity(person) {
-		return fmt.Errorf("Erro ao tentar criar pessoa. Erro número incorreto de CPF ou números de telefone")
+		return fmt.Errorf("falha ao tentar criar pessoa. Erro número incorreto de CPF ou números de telefone")
 	}
 
 	//Verificar obrigatoriedade campos
 	if s.obrigatory(person) {
-		return fmt.Errorf("Erro ao tentar criar pessoa. Erro ao preencher os dados")
+		return fmt.Errorf("falha ao tentar criar pessoa. Erro ao preencher os dados")
 	}
 
 	// adicinar pessoa
@@ -94,7 +94,7 @@ func (s *Service) Create(person domain.Person) error {
 	//salvar o arquivo
 	err := s.saveFile()
 	if err != nil {
-		return fmt.Errorf("Erro ao tentar salvar arquivo no método Create. Error: %s", err.Error())
+		return fmt.Errorf("falha ao tentar salvar arquivo no método Create. Error: %s", err.Error())
 	}
 
 	return nil
@@ -138,7 +138,7 @@ func (s Service) exists(person domain.Person) bool {
 func (s Service) saveFile() error {
 	allPeopleJSON, err := json.Marshal(s.people)
 	if err != nil {
-		return fmt.Errorf("Erro ao tentar codificar pessoas como json: %s", err.Error())
+		return fmt.Errorf("falha ao tentar codificar pessoas como json: %s", err.Error())
 	}
 	return ioutil.WriteFile(s.dbFilePath, allPeopleJSON, 0755)
 }
@@ -153,7 +153,7 @@ func (s Service) GetByID(personID int) (domain.Person, error) {
 			return currentPerson, nil
 		}
 	}
-	return domain.Person{}, fmt.Errorf("Pessoa não encontrada")
+	return domain.Person{}, fmt.Errorf("falha ao listar pessoas, ID não cadastrado")
 }
 
 //Função para encontrar a pessoa para editar pelo ID
@@ -166,7 +166,7 @@ func (s *Service) Edit(person domain.Person) error {
 		}
 	}
 	if indexToEdit < 0 {
-		return fmt.Errorf("Não há pessoa com o ID fornecido em nosso banco de dados")
+		return fmt.Errorf("não há pessoa com o ID fornecido em nosso banco de dados")
 	}
 
 	s.people.People[indexToEdit] = person
@@ -182,7 +182,7 @@ func (s *Service) DeleteByID(personID int) error {
 		}
 	}
 	if indexToDelete < 0 {
-		return fmt.Errorf("Não há nenhuma pessoa com o ID fornecido em nosso banco de dados")
+		return fmt.Errorf("não há nenhuma pessoa com o ID fornecido em nosso banco de dados")
 	}
 
 	s.people.People = append(s.people.People[:indexToDelete], s.people.People[indexToDelete+1:]...)

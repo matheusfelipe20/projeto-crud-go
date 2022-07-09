@@ -96,8 +96,8 @@ func main() {
 			//Editar Pessoa
 			err = personService.Edit(person)
 			if err != nil {
-				fmt.Printf("Erro ao tentar editar a pessoa: %s", err.Error())
-				http.Error(w, "Erro ao tentar criar cadastro pessoa", http.StatusInternalServerError)
+				fmt.Printf("Erro ao tentar editar o cadastro: %s", err.Error())
+				http.Error(w, "Erro ao tentar editar o cadastro, ID não existente ou inválido", http.StatusInternalServerError)
 				return
 			}
 
@@ -121,7 +121,7 @@ func main() {
 				err = personService.DeleteByID(personID)
 				if err != nil {
 					fmt.Printf("Erro ao tentar excluir cadastro de pessoa: %s", err.Error())
-					http.Error(w, "Erro ao tentar excluir cadastro de pessoa", http.StatusInternalServerError)
+					http.Error(w, "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado", http.StatusInternalServerError)
 					return
 				}
 				fmt.Println("Pessoa deletada com sucesso")

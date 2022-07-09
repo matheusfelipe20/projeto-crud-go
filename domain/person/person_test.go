@@ -3,7 +3,6 @@ package person_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -30,14 +29,20 @@ func TestCreate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Erro ao fazer requisição: %v", err)
 	}
+	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
-
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+	if string(body) == "Erro ao tentar criar cadastro pessoa" {
+		t.Error(string(body))
+	}
 }
 
-//Teste listar pessoas cadastradas
+//Teste listar todas as pessoas cadastradas
 func TestGetUsers(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/person")
 	if err != nil {
@@ -55,10 +60,15 @@ func TestGetUsers(t *testing.T) {
 	err = json.Unmarshal([]byte(string(body)), &pro)
 
 	if err != nil {
-		t.Error(err)
+		log.Println(err)
 	}
+
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+
+	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
+		t.Error(string(body))
 	}
 }
 
@@ -80,12 +90,15 @@ func TestGetUsersByID(t *testing.T) {
 	err = json.Unmarshal([]byte(string(body)), &pro)
 
 	if err != nil {
-		t.Error(err)
-	}
-	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso: %d", resp.StatusCode)
+		log.Println(err)
 	}
 
+	if resp.StatusCode != 200 {
+		t.Error(string(body))
+	}
+	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
+		t.Error(string(body))
+	}
 }
 
 //Teste editar pessoa cadastrada
@@ -106,14 +119,18 @@ func TestEditUser(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	defer resp.Body.Close()
-
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Println(err)
 		t.Error(err)
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+	if string(body) == "Erro ao tentar editar o cadastro, ID não existente ou inválido" {
+		t.Error(string(body))
 	}
 }
 
@@ -130,28 +147,139 @@ func TestDeleteUser(t *testing.T) {
 		t.Error("---------------------------------------------")
 		t.Error(err)
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		t.Error(err)
+	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
+		t.Error(string(body))
 	}
 }
 
-//Teste de Erro de CPF nulo
+//Teste_Erro CPF nulo
 func TestErroCreateCpfNulo(t *testing.T) {
 	resp, err := http.Post("http://localhost:8080/person/", "application/json",
-		bytes.NewBuffer([]byte(`{"id": 2,"full_name":"Bandeira","cpf":0,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
+		bytes.NewBuffer([]byte(`{"id": 12,"full_name":"Bandeira","cpf":0,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
 
 	if err != nil {
 		t.Errorf("Erro ao fazer requisição: %v", err)
 	}
+	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+
+	if string(body) == "Erro ao tentar criar cadastro pessoa" {
+		t.Error(string(body))
+	}
 }
 
-//Teste para dar Erro de deletar cadastro, ID não existente
+//Teste_Erro Create: ID negativo
+func TestErroCreateIDNegative(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id": -7,"full_name":"Bandeira","cpf":12345678989,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+
+	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
+		t.Error(string(body))
+	}
+}
+
+//Teste_Erro Create: Nome vazio
+func TestErroCreateNameNull(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id": 12,"full_name":"","cpf":12345678989,"phone":83977955590,"address":"Guarabira","date_birth":"22/March/2002"}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+
+	if string(body) == "Erro ao tentar criar cadastro pessoa" {
+		t.Error(string(body))
+	}
+}
+
+//Teste_Erro Create: Endereço vazio
+func TestErroCreateAddressNull(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id": 12,"full_name":"Bandeira","cpf":12345678989,"phone":83977955590,"address":"","date_birth":"22/March/2002"}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+
+	if string(body) == "Erro ao tentar criar cadastro pessoa" {
+		t.Error(string(body))
+	}
+}
+
+//Teste_Erro Create: Date Birth vazio
+func TestErroCreateDateBirthNull(t *testing.T) {
+	resp, err := http.Post("http://localhost:8080/person/", "application/json",
+		bytes.NewBuffer([]byte(`{"id": 12,"full_name":"Bandeira","cpf":12345678900,"phone":83977955590,"address":"Guarabira","date_birth":""}`)))
+
+	if err != nil {
+		t.Errorf("Erro ao fazer requisição: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		t.Errorf("Erro no preenchimento dos campos: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Error(string(body))
+	}
+
+	if string(body) == "Erro ao tentar criar cadastro pessoa" {
+		t.Error(string(body))
+	}
+}
+
+//Teste_Erro Deletar cadastro: ID não existente
 func TestErroDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", "http://localhost:8080/person/100", nil)
 	if err != nil {
@@ -164,20 +292,30 @@ func TestErroDeleteUser(t *testing.T) {
 		t.Error("---------------------------------------------")
 		t.Error(err)
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		t.Error(err)
+	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
+		t.Error(string(body))
 	}
 }
 
-//Teste para dar Erro de editar cadastro, ID não existente
+//Teste_Erro Editar cadastro: ID não existente
 func TestErroEditID(t *testing.T) {
 
 	req, err := http.NewRequest(
 		"PUT",
 		"http://localhost:8080/person/",
-		bytes.NewBuffer([]byte(`{"id":100,"full_name":"Matheus","cpf":78978978555,"phone":83978955578,"address":"Guarabira","date_birth":"20/March/2002"}`)))
+		bytes.NewBuffer([]byte(`{"id":100,"full_name":"Matheus","cpf":78978978559,"phone":83978955578,"address":"Guarabira","date_birth":"20/March/2002"}`)))
 
 	if err != nil {
 		t.Error(err)
@@ -189,6 +327,8 @@ func TestErroEditID(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 
 	if err != nil {
@@ -196,11 +336,14 @@ func TestErroEditID(t *testing.T) {
 	}
 
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+	if string(body) == "Erro ao tentar editar o cadastro, ID não existente ou inválido" {
+		t.Error(string(body))
 	}
 }
 
-//Teste para dar Erro de ID não encontrado
+//Teste_Erro Get: ID não cadastrado
 func TestErroGetID(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/person/100")
 	if err != nil {
@@ -218,10 +361,14 @@ func TestErroGetID(t *testing.T) {
 	err = json.Unmarshal([]byte(string(body)), &pro)
 
 	if err != nil {
-		t.Error(err)
+		log.Println(err)
 	}
+
 	if resp.StatusCode != 200 {
-		fmt.Printf("Sem sucesso, ID não cadastrado: %d", resp.StatusCode)
+		t.Error(string(body))
+	}
+	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
+		t.Error(string(body))
 	}
 
 }
