@@ -178,12 +178,8 @@ func TestErroCreateCpfNulo(t *testing.T) {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
-	}
-
-	if string(body) == "Erro ao tentar criar cadastro pessoa" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -201,12 +197,8 @@ func TestErroCreateIDNegative(t *testing.T) {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
-	}
-
-	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
-		t.Error(string(body))
+	if resp.StatusCode == 400 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -224,12 +216,8 @@ func TestErroCreateNameNull(t *testing.T) {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
-	}
-
-	if string(body) == "Erro ao tentar criar cadastro pessoa" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -247,12 +235,8 @@ func TestErroCreateAddressNull(t *testing.T) {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
-	}
-
-	if string(body) == "Erro ao tentar criar cadastro pessoa" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -270,12 +254,8 @@ func TestErroCreateDateBirthNull(t *testing.T) {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
 
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
-	}
-
-	if string(body) == "Erro ao tentar criar cadastro pessoa" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -301,11 +281,8 @@ func TestErroDeleteUser(t *testing.T) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -335,11 +312,8 @@ func TestErroEditID(t *testing.T) {
 		t.Error(err)
 	}
 
-	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "Erro ao tentar editar o cadastro, ID não existente ou inválido" {
-		t.Error(string(body))
+	if resp.StatusCode == 500 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -364,11 +338,8 @@ func TestErroGetID(t *testing.T) {
 		log.Println(err)
 	}
 
-	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
-		t.Error(string(body))
+	if resp.StatusCode == 404 {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 
 }
