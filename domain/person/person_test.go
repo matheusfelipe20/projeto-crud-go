@@ -31,15 +31,40 @@ func TestCreate(t *testing.T) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+
 	if err != nil {
 		t.Errorf("Erro no preenchimento dos campos: %v", err)
 	}
-	if resp.StatusCode != http.StatusCreated {
-		t.Error(string(body))
+
+	//Testar se o cadastro foi registrado na listar com o ID: 1
+	if resp.StatusCode == http.StatusCreated {
+		resp, erro := http.Get("http://localhost:8080/person/1")
+		if erro != nil {
+			t.Errorf("Erro ao fazer requisição: %v", erro)
+		}
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Println(err)
+			t.Error(err)
+		}
+		log.Println(string(body))
+		pro := Person{}
+		err = json.Unmarshal([]byte(string(body)), &pro)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		if resp.StatusCode != 200 {
+			t.Errorf("Sem sucesso: %v", string(body))
+		}
+
+	} else {
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
-	if string(body) == "Erro ao tentar criar cadastro pessoa" {
-		t.Error(string(body))
-	}
+
 }
 
 //Teste listar todas as pessoas cadastradas
@@ -64,11 +89,7 @@ func TestGetUsers(t *testing.T) {
 	}
 
 	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-
-	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
-		t.Error(string(body))
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -94,10 +115,7 @@ func TestGetUsersByID(t *testing.T) {
 	}
 
 	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "falha ao listar pessoas, ID não cadastrado" {
-		t.Error(string(body))
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -127,10 +145,7 @@ func TestEditUser(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "Erro ao tentar editar o cadastro, ID não existente ou inválido" {
-		t.Error(string(body))
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
@@ -157,10 +172,7 @@ func TestDeleteUser(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		t.Error(string(body))
-	}
-	if string(body) == "Erro ao tentar excluir cadastro de pessoa, ID invalido ou não cadastrado" {
-		t.Error(string(body))
+		t.Errorf("Sem sucesso: %v", string(body))
 	}
 }
 
